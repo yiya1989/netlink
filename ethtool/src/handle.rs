@@ -2,19 +2,14 @@
 
 use futures::{future::Either, FutureExt, Stream, StreamExt, TryStream};
 use genetlink::GenetlinkHandle;
+use log::info;
 use netlink_packet_core::{NetlinkMessage, NLM_F_ACK, NLM_F_DUMP, NLM_F_REQUEST};
 use netlink_packet_generic::GenlMessage;
 use netlink_packet_utils::DecodeError;
 
 use crate::{
-    try_ethtool,
-    EthtoolCoalesceHandle,
-    EthtoolError,
-    EthtoolFeatureHandle,
-    EthtoolLinkModeHandle,
-    EthtoolMessage,
-    EthtoolPauseHandle,
-    EthtoolRingHandle,
+    try_ethtool, EthtoolChannelHandle, EthtoolCoalesceHandle, EthtoolError, EthtoolFeatureHandle,
+    EthtoolLinkModeHandle, EthtoolMessage, EthtoolPauseHandle, EthtoolRingHandle,
 };
 
 #[derive(Clone, Debug)]
@@ -47,6 +42,10 @@ impl EthtoolHandle {
         EthtoolCoalesceHandle::new(self.clone())
     }
 
+    pub fn channel(&mut self) -> EthtoolChannelHandle {
+        EthtoolChannelHandle::new(self.clone())
+    }
+
     pub async fn request(
         &mut self,
         message: NetlinkMessage<GenlMessage<EthtoolMessage>>,
@@ -65,8 +64,9 @@ pub(crate) async fn ethtool_execute(
     handle: &mut EthtoolHandle,
     is_dump: bool,
     ethtool_msg: EthtoolMessage,
+    with_ack: bool,
 ) -> impl TryStream<Ok = GenlMessage<EthtoolMessage>, Error = EthtoolError> {
-    let nl_header_flags = if is_dump {
+    let mut nl_header_flags = if is_dump {
         // The NLM_F_ACK is required due to bug of kernel:
         //  https://bugzilla.redhat.com/show_bug.cgi?id=1953847
         // without `NLM_F_MULTI`, rust-netlink will not parse
@@ -78,9 +78,17 @@ pub(crate) async fn ethtool_execute(
         NLM_F_REQUEST
     };
 
+    if with_ack {
+        nl_header_flags |= NLM_F_ACK
+    }
+
+    info!("ethtool_execute: {:#?}", ethtool_msg);
+
     let mut nl_msg = NetlinkMessage::from(GenlMessage::from_payload(ethtool_msg));
 
     nl_msg.header.flags = nl_header_flags;
+
+    info!("handle.request: {:#?}", nl_msg);
 
     match handle.request(nl_msg).await {
         Ok(response) => Either::Left(response.map(move |msg| Ok(try_ethtool!(msg)))),

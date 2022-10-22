@@ -7,8 +7,7 @@ use byteorder::{ByteOrder, NativeEndian};
 use netlink_packet_utils::{
     nla::{DefaultNla, Nla, NlaBuffer},
     parsers::{parse_string, parse_u32},
-    DecodeError,
-    Parseable,
+    DecodeError, Parseable,
 };
 
 const ALTIFNAMSIZ: usize = 128;

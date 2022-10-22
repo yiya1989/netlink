@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 
+mod channel;
 mod coalesce;
 mod connection;
 mod error;
@@ -18,26 +19,21 @@ pub use connection::new_connection;
 pub use connection::new_connection_with_socket;
 pub use error::EthtoolError;
 pub use feature::{
-    EthtoolFeatureAttr,
-    EthtoolFeatureBit,
-    EthtoolFeatureGetRequest,
-    EthtoolFeatureHandle,
+    EthtoolFeatureAttr, EthtoolFeatureBit, EthtoolFeatureGetRequest, EthtoolFeatureHandle,
 };
 pub use handle::EthtoolHandle;
 pub use header::EthtoolHeader;
 pub use link_mode::{
-    EthtoolLinkModeAttr,
-    EthtoolLinkModeDuplex,
-    EthtoolLinkModeGetRequest,
-    EthtoolLinkModeHandle,
+    EthtoolLinkModeAttr, EthtoolLinkModeDuplex, EthtoolLinkModeGetRequest, EthtoolLinkModeHandle,
 };
 pub use message::{EthtoolAttr, EthtoolCmd, EthtoolMessage};
 pub use pause::{
-    EthtoolPauseAttr,
-    EthtoolPauseGetRequest,
-    EthtoolPauseHandle,
-    EthtoolPauseStatAttr,
+    EthtoolPauseAttr, EthtoolPauseGetRequest, EthtoolPauseHandle, EthtoolPauseStatAttr,
 };
 pub use ring::{EthtoolRingAttr, EthtoolRingGetRequest, EthtoolRingHandle};
+
+pub use channel::{
+    EthtoolChannelAttr, EthtoolChannelGetRequest, EthtoolChannelHandle, EthtoolChannelSetRequest,
+};
 
 pub(crate) use handle::ethtool_execute;
