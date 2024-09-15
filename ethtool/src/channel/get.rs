@@ -5,14 +5,14 @@ use netlink_packet_generic::GenlMessage;
 
 use crate::{ethtool_execute, EthtoolError, EthtoolHandle, EthtoolMessage};
 
-pub struct EthtoolLinkModeGetRequest {
+pub struct EthtoolChannelGetRequest {
     handle: EthtoolHandle,
     iface_name: Option<String>,
 }
 
-impl EthtoolLinkModeGetRequest {
+impl EthtoolChannelGetRequest {
     pub(crate) fn new(handle: EthtoolHandle, iface_name: Option<&str>) -> Self {
-        EthtoolLinkModeGetRequest {
+        EthtoolChannelGetRequest {
             handle,
             iface_name: iface_name.map(|i| i.to_string()),
         }
@@ -21,12 +21,12 @@ impl EthtoolLinkModeGetRequest {
     pub async fn execute(
         self,
     ) -> impl TryStream<Ok = GenlMessage<EthtoolMessage>, Error = EthtoolError> {
-        let EthtoolLinkModeGetRequest {
+        let EthtoolChannelGetRequest {
             mut handle,
             iface_name,
         } = self;
 
-        let ethtool_msg = EthtoolMessage::new_link_mode_get(iface_name.as_deref());
+        let ethtool_msg = EthtoolMessage::new_channel_get(iface_name.as_deref());
         ethtool_execute(&mut handle, iface_name.is_none(), ethtool_msg, false).await
     }
 }

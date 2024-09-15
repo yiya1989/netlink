@@ -27,6 +27,6 @@ impl EthtoolFeatureGetRequest {
         } = self;
 
         let ethtool_msg = EthtoolMessage::new_feature_get(iface_name.as_deref());
-        ethtool_execute(&mut handle, iface_name.is_none(), ethtool_msg).await
+        ethtool_execute(&mut handle, iface_name.is_none(), ethtool_msg, false).await
     }
 }
